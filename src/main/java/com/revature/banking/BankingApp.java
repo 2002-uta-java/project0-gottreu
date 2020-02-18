@@ -2,22 +2,49 @@ package com.revature.banking;
 
 import java.util.Scanner;
 
+import com.revature.models.User;
+import com.revature.services.UserService;
+
 public class BankingApp {
 	
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		String s;
+		User currentUser = null;
 		while (sc.hasNextLine()) {
-			s = sc.nextLine();
-			System.out.println(">>" + s + "<<");
-			switch(s) {
-			case "create":
-				System.out.println("enter new username");
-				System.out.println("username entered = " + sc.nextLine());
-				break;
-			case "login":
-				System.out.println("supply username to login");
-				break;
+			if(currentUser == null) {
+				System.out.println("[create | login]");
+				s = sc.nextLine();
+				//System.out.println(">>" + s + "<<");
+				switch(s) {
+				case "create":
+					System.out.println("not implemented");
+					break;
+				case "login":
+					System.out.println("username > ");
+					String username = sc.nextLine();
+					System.out.println("password > ");
+					String password = sc.nextLine();
+					currentUser = login(username, password);
+					if(currentUser == null) {
+						System.out.println("Login failed.");
+					}
+					break;
+				}
+			} else {
+				System.out.println("[balance | deposit | withdraw]");
+				s = sc.nextLine();
+				switch(s) {
+				case "balance":
+					System.out.println("not implemented");
+					break;
+				case "deposit":
+					System.out.println("not implemented");
+					break;
+				case "withdraw":
+					System.out.println("not implemented");
+					break;
+				}
 			}
 		}
 		sc.close();		
@@ -32,4 +59,18 @@ public class BankingApp {
 	6) withdraw money (no negative balances!)
 	7) view account balance
 	*/
+
+	private static User login(String username, String password) {
+		/*
+		 select crypt('security', 
+			(select password from person where username='gottreu')) 
+			= password from person where username = 'gottreu';
+		*/
+		UserService us = new UserService();
+		if(us.checkPassword(username, password)) {
+			System.err.println("password was correct");
+			return us.findUserByUsername(username);
+		}
+		return null;
+	}
 }
