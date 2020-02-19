@@ -6,27 +6,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.revature.daos.UserDAO;
+import com.revature.models.User;
 import com.revature.utils.ConnectionUtil;
 
 public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public boolean checkPassword(String username, String password) {
-		// TODO Auto-generated method stub
-		/*
-		 * select crypt('security', (select password from person where
-		 * username='gottreu')) = password from person where username = 'gottreu';
-		 */
-		/*String query = "select " + 
-		 "crypt(?, (select password from person where username=?)) "
-				+ "= password, " 
-				+ "password, "
-				+ "crypt(?, (select password from person where username=?)) "
-				+ "from person where username = ?;";*/
 		String query = "select " + 
-				 "crypt(?, (select password from person where username=?)) "
-						+ "= password " 
-						+ "from person where username = ?;";
+				"crypt(?, (select password from person where username=?)) " + 
+				"= password from person where username = ?;";
 		ResultSet rs = null;
 		try (Connection c = ConnectionUtil.getConnection(); 
 				PreparedStatement ps = c.prepareStatement(query)) {
@@ -37,13 +26,13 @@ public class UserDAOImpl implements UserDAO {
 			rs = ps.executeQuery();
 
 			if (rs.next()) {
-				System.out.println(rs);
+				//System.out.println(rs);
 				Boolean b = rs.getBoolean(1);
-				//String oldP = rs.getString(2);
-				//String newP = rs.getString(3);
-				System.out.println(b);
-				//System.out.println(oldP);
-				//System.out.println(newP);
+				// String oldP = rs.getString(2);
+				// String newP = rs.getString(3);
+				//System.out.println(b);
+				// System.out.println(oldP);
+				// System.out.println(newP);
 				return b;
 			}
 		} catch (SQLException e) {
@@ -51,6 +40,30 @@ public class UserDAOImpl implements UserDAO {
 		}
 
 		return false;
+	}
+
+	@Override
+	public User findUserByUsername(String username) {
+		User u = null;
+		String query = "select username, legal_name " + 
+				"from person where username = ?;";
+		ResultSet rs = null;
+		try (Connection c = ConnectionUtil.getConnection(); 
+				PreparedStatement ps = c.prepareStatement(query)) {
+			ps.setString(1, username);
+
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				u = new User();
+				u.setLegalName(rs.getString("legal_name"));
+				u.setUsername(rs.getString("username"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return u;
 	}
 
 }
