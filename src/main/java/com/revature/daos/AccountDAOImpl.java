@@ -7,11 +7,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
 import com.revature.daos.AccountDAO;
 import com.revature.models.Account;
+import com.revature.models.Transaction;
 import com.revature.models.User;
 import com.revature.utils.ConnectionUtil;
 
@@ -147,5 +149,36 @@ public class AccountDAOImpl implements AccountDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public List<Transaction> getHistory(Account a) {
+		List<Transaction> ts = new ArrayList<Transaction>();
+		if(a == null) { return ts; }
+		String query = "select * from \"transaction\" where account_id = ? order by tstamp";
+		ResultSet rs = null;
+		Connection c = null;
+		try {
+			c = ConnectionUtil.getConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try (PreparedStatement ps = c.prepareStatement(query)) {
+			ps.setInt(1, a.getId());
+
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				//return rs.getBigDecimal(1);
+				Transaction t = new Transaction();
+				t.setAmount(rs.getBigDecimal("amount"));
+				t.setTimestamp(rs.getTimestamp("tstamp"));
+				t.setDescription(rs.getString("description"));
+				ts.add(t);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ts;
 	}
 }

@@ -1,18 +1,20 @@
 package com.revature.models;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
 
 public class Transaction {
-	private OffsetDateTime timestamp;
+	private Timestamp timestamp;
 	private BigDecimal amount;
 	private String description;
-
-	public OffsetDateTime getTimestamp() {
+	public String toString() {
+		return timestamp + " " + amount + " " + description;
+	}
+	public Timestamp getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(OffsetDateTime timestamp) {
+	public void setTimestamp(Timestamp timestamp) {
 		this.timestamp = timestamp;
 	}
 

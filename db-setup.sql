@@ -15,9 +15,10 @@ create table person (
 
 insert into person (id, legal_name, username, password)
 	values (1, 'Brian Gottreu', 'gottreu', crypt('security', gen_salt('bf'))),
-	(2, 'Susan Jones', 'jones', crypt('fancypass', gen_salt('bf')));
+	(2, 'Susan Jones', 'jones', crypt('fancypass', gen_salt('bf'))),
+	(3, 'Mrs Gottreu', 'mrsgottreu', crypt('password', gen_salt('bf')));
 
-SELECT pg_catalog.setval('public.person_id_seq', 3, false);
+SELECT pg_catalog.setval('public.person_id_seq', 4, false);
 
 --select crypt('security', (select password from person where username='gottreu')) = password from person where username = 'gottreu';
 create table account (
@@ -41,7 +42,8 @@ create table ownership (
 insert into ownership (person_id, account_id) values
 	(1,1), -- gottreu checking
 	(2,2), -- jones checking
-	(2,3); -- jones savings
+	(2,3), -- jones savings
+	(3,1); -- gottreu checking for mrs
 	
 
 
@@ -75,6 +77,8 @@ INSERT INTO public.transaction VALUES (8, 2, '2020-02-18 22:17:45.363', -100.00,
 INSERT INTO public.transaction VALUES (9, 2, '2020-02-18 22:17:51.155', -100.00, 'Withdrawal');
 INSERT INTO public.transaction VALUES (10, 2, '2020-02-18 22:18:07.227', -24800.00, 'Withdrawal');
 INSERT INTO public.transaction VALUES (11, 2, '2020-02-18 22:18:22.322', 55000.00, 'Deposit');
+
+SELECT pg_catalog.setval('public.transaction_id_seq', 24, false);
 
 select sum(amount) from "transaction" t
 	where account_id = 1;

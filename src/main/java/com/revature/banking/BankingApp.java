@@ -65,28 +65,52 @@ public class BankingApp {
 							// AccountService as = new AccountService();
 							List<Account> accounts = as.getAccountsForUser(currentUser);
 							if (accounts != null && accounts.size() > 0) {
-								currentAccount = accounts.get(0);
-								System.out.println("Using account " + currentAccount);
+								if (accounts.size() > 1) {
+									for (int i = 0; i < accounts.size(); ++i) {
+										System.out.println(
+												"(" + i + ") " + accounts.get(i).getDescription());
+									}
+									boolean needsInput = true;
+									int selectedAccount = -1;
+									do {
+										System.out.println("Enter account to use");
+
+										if (sc.hasNextInt()) {
+											selectedAccount = sc.nextInt();
+											sc.nextLine();
+											if (selectedAccount >= 0
+													&& selectedAccount < accounts.size()) {
+												needsInput = false;
+											}
+										} else {
+											sc.nextLine();
+										}
+									} while (needsInput);
+									currentAccount = accounts.get(selectedAccount);
+								} else {
+									currentAccount = accounts.get(0);
+								}
 							} else {
 								System.out.println("no account exists");
 								System.out.println("Enter description for new account");
-								//System.err.println("account creation unimplemented");
+								// System.err.println("account creation unimplemented");
 								String desc = sc.nextLine();
 								as.createAccount(currentUser, desc);
 								currentAccount = as.getAccountsForUser(currentUser).get(0);
 							}
+							System.out.println("Using account " + currentAccount);
 						}
 						break;
 					}
 					}
 				} else {
-					System.out.println("[balance | deposit | withdraw | logout]");
+					System.out.println("[balance | deposit | withdraw | history | logout]");
 					s = sc.nextLine();
 					switch (s) {
 					case "balance":
 						BigDecimal bal;
 						bal = as.getBalance(currentAccount);
-						if(bal == null) {
+						if (bal == null) {
 							bal = BigDecimal.ZERO;
 						}
 						System.out.println("Current balance is " + bal);
@@ -139,10 +163,14 @@ public class BankingApp {
 						}
 						break;
 					}
+					case "history":
+						as.printHistory(currentAccount);
+						break;
 					case "logout":
 						System.out.println("logging out " + currentUser.getLegalName());
 						currentUser = null;
 						currentAccount = null;
+						break;
 					}
 				}
 			} catch (NoSuchElementException e) {
@@ -189,13 +217,13 @@ public class BankingApp {
 	 * 
 	 * Use log4j to replace System.out.println with logging
 	 * 
-	 * Multiple user bank accounts (checking & savings)
+	 * X Multiple user bank accounts (checking & savings)
 	 * 
 	 * Transfer funds functionality between user accounts
 	 * 
-	 * Joint accounts (a single account with two separate users having access)
+	 * X Joint accounts (a single account with two separate users having access)
 	 * 
-	 * Ability to view transaction history
+	 * X Ability to view transaction history
 	 * 
 	 * X Password encryption for added security
 	 * 
