@@ -1,8 +1,6 @@
 package com.revature.models;
 
 public class Account {
-	//private List<User> users;
-	//private List<Transaction> transactions;
 	private String description;
 	private int id;
 	

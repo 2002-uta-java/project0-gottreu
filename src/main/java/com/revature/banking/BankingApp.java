@@ -202,6 +202,9 @@ public class BankingApp {
 	 * X7) view account balance
 	 * 
 	 * use at least one X Statement, X PreparedStatement, and X CallableStatement
+	 * statement - accountdaoimpl getBalance
+	 * prepared - everything else
+	 * callable - userdaoimpl addPerson
 	 * 
 	 * X Use the DAO design pattern
 	 * 

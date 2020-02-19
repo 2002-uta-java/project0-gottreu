@@ -21,7 +21,6 @@ public class AccountDAOImpl implements AccountDAO {
 
 	@Override
 	public List<Account> getAccountsForUser(User user) {
-		// User u = null;
 		List<Account> accounts = new Vector<>();
 		String query = "select a.id, description from account a "
 				+ "join ownership o on a.id = o.account_id "
@@ -66,8 +65,6 @@ public class AccountDAOImpl implements AccountDAO {
 			e.printStackTrace();
 		}
 		try (Statement s = c.createStatement()) {
-			//ps.setInt(1, a.getId());
-
 			rs = s.executeQuery(query);
 
 			if (rs.next()) {
@@ -83,12 +80,10 @@ public class AccountDAOImpl implements AccountDAO {
 	public boolean addTransaction(Account a, BigDecimal amt, Timestamp ts, String desc) {
 		String query = "insert into \"transaction\" (account_id, tstamp, amount, description) "
 				+ " values (?, ?, ?, ?);";
-		// ResultSet rs = null;
 		if (amt.compareTo(BigDecimal.ZERO) < 0) {
 			BigDecimal bal = getBalance(a);
 			if(bal == null) { return false; }
 			if (bal.add(amt).compareTo(BigDecimal.ZERO) < 0) {
-				// System.err.println("insufficient funds");
 				return false;
 			}
 		}
@@ -130,7 +125,6 @@ public class AccountDAOImpl implements AccountDAO {
 			
 			if(rs.next()) {
 				accountId = rs.getInt("id");
-				System.out.println("account id = " + accountId);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -141,11 +135,6 @@ public class AccountDAOImpl implements AccountDAO {
 			ps.setInt(2, accountId);
 			
 			ps.execute();
-			
-			//if(rs.next()) {
-				//accountId = rs.getInt("id");
-				//System.out.println("account id = " + accountId);
-			//}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -169,7 +158,6 @@ public class AccountDAOImpl implements AccountDAO {
 			rs = ps.executeQuery();
 
 			while (rs.next()) {
-				//return rs.getBigDecimal(1);
 				Transaction t = new Transaction();
 				t.setAmount(rs.getBigDecimal("amount"));
 				t.setTimestamp(rs.getTimestamp("tstamp"));
