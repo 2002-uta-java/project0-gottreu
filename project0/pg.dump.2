@@ -1,0 +1,362 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 11.6
+-- Dumped by pg_dump version 11.6
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+--
+-- Name: add_person(text, text, text); Type: FUNCTION; Schema: public; Owner: bankuser
+--
+
+CREATE FUNCTION public.add_person(legal_name_i text, username_i text, password_i text) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+begin
+	--insert into department (dept_name, monthly_budget) values (dept_name_i, budget_i);
+	insert into person (legal_name, username, password)
+		values (legal_name_i, username_i, crypt(password_i, gen_salt('bf')));
+end
+$$;
+
+
+ALTER FUNCTION public.add_person(legal_name_i text, username_i text, password_i text) OWNER TO bankuser;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: account; Type: TABLE; Schema: public; Owner: bankuser
+--
+
+CREATE TABLE public.account (
+    id integer NOT NULL,
+    description text
+);
+
+
+ALTER TABLE public.account OWNER TO bankuser;
+
+--
+-- Name: account_id_seq; Type: SEQUENCE; Schema: public; Owner: bankuser
+--
+
+CREATE SEQUENCE public.account_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.account_id_seq OWNER TO bankuser;
+
+--
+-- Name: account_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: bankuser
+--
+
+ALTER SEQUENCE public.account_id_seq OWNED BY public.account.id;
+
+
+--
+-- Name: ownership; Type: TABLE; Schema: public; Owner: bankuser
+--
+
+CREATE TABLE public.ownership (
+    id integer NOT NULL,
+    person_id integer,
+    account_id integer
+);
+
+
+ALTER TABLE public.ownership OWNER TO bankuser;
+
+--
+-- Name: ownership_id_seq; Type: SEQUENCE; Schema: public; Owner: bankuser
+--
+
+CREATE SEQUENCE public.ownership_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.ownership_id_seq OWNER TO bankuser;
+
+--
+-- Name: ownership_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: bankuser
+--
+
+ALTER SEQUENCE public.ownership_id_seq OWNED BY public.ownership.id;
+
+
+--
+-- Name: person; Type: TABLE; Schema: public; Owner: bankuser
+--
+
+CREATE TABLE public.person (
+    id integer NOT NULL,
+    legal_name text,
+    username text,
+    password text
+);
+
+
+ALTER TABLE public.person OWNER TO bankuser;
+
+--
+-- Name: person_id_seq; Type: SEQUENCE; Schema: public; Owner: bankuser
+--
+
+CREATE SEQUENCE public.person_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.person_id_seq OWNER TO bankuser;
+
+--
+-- Name: person_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: bankuser
+--
+
+ALTER SEQUENCE public.person_id_seq OWNED BY public.person.id;
+
+
+--
+-- Name: transaction; Type: TABLE; Schema: public; Owner: bankuser
+--
+
+CREATE TABLE public.transaction (
+    id integer NOT NULL,
+    account_id integer,
+    tstamp timestamp without time zone,
+    amount numeric(20,2),
+    description text
+);
+
+
+ALTER TABLE public.transaction OWNER TO bankuser;
+
+--
+-- Name: transaction_id_seq; Type: SEQUENCE; Schema: public; Owner: bankuser
+--
+
+CREATE SEQUENCE public.transaction_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.transaction_id_seq OWNER TO bankuser;
+
+--
+-- Name: transaction_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: bankuser
+--
+
+ALTER SEQUENCE public.transaction_id_seq OWNED BY public.transaction.id;
+
+
+--
+-- Name: account id; Type: DEFAULT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.account ALTER COLUMN id SET DEFAULT nextval('public.account_id_seq'::regclass);
+
+
+--
+-- Name: ownership id; Type: DEFAULT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.ownership ALTER COLUMN id SET DEFAULT nextval('public.ownership_id_seq'::regclass);
+
+
+--
+-- Name: person id; Type: DEFAULT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.person ALTER COLUMN id SET DEFAULT nextval('public.person_id_seq'::regclass);
+
+
+--
+-- Name: transaction id; Type: DEFAULT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.transaction ALTER COLUMN id SET DEFAULT nextval('public.transaction_id_seq'::regclass);
+
+
+--
+-- Data for Name: account; Type: TABLE DATA; Schema: public; Owner: bankuser
+--
+
+INSERT INTO public.account VALUES (1, 'Checking account');
+INSERT INTO public.account VALUES (2, 'Checking account');
+INSERT INTO public.account VALUES (3, 'Savings account');
+
+
+--
+-- Data for Name: ownership; Type: TABLE DATA; Schema: public; Owner: bankuser
+--
+
+INSERT INTO public.ownership VALUES (1, 1, 1);
+INSERT INTO public.ownership VALUES (2, 2, 2);
+INSERT INTO public.ownership VALUES (3, 2, 3);
+
+
+--
+-- Data for Name: person; Type: TABLE DATA; Schema: public; Owner: bankuser
+--
+
+INSERT INTO public.person VALUES (1, 'Brian Gottreu', 'gottreu', '$2a$06$GWQH23QBbivw9ir4jevIBuCeZ8WA8COajV.A07XEmYTd.w2syYs.2');
+INSERT INTO public.person VALUES (2, 'Susan Jones', 'jones', '$2a$06$nDOZEUrGee3xh/F0yfXnFe1iES2HLGLE9h05WGmD0uUm8HCb1fK7u');
+
+
+--
+-- Data for Name: transaction; Type: TABLE DATA; Schema: public; Owner: bankuser
+--
+
+INSERT INTO public.transaction VALUES (1, 1, '2020-01-01 12:13:00', 1000.00, 'Account opening');
+INSERT INTO public.transaction VALUES (2, 1, '2020-01-02 06:35:00', -11.74, 'Denny''s');
+INSERT INTO public.transaction VALUES (3, 1, '2020-01-02 12:15:00', -7.83, 'Taco Bell');
+INSERT INTO public.transaction VALUES (4, 1, '2020-01-02 17:45:00', -35.14, 'Cheesecake Factory');
+INSERT INTO public.transaction VALUES (5, 1, '2020-02-18 21:45:53.624', 20.00, 'Deposit');
+INSERT INTO public.transaction VALUES (6, 1, '2020-02-18 21:47:05.981', 100.00, 'Deposit');
+INSERT INTO public.transaction VALUES (7, 2, '2020-02-18 22:17:39.12', 25000.00, 'Deposit');
+INSERT INTO public.transaction VALUES (8, 2, '2020-02-18 22:17:45.363', -100.00, 'Withdrawal');
+INSERT INTO public.transaction VALUES (9, 2, '2020-02-18 22:17:51.155', -100.00, 'Withdrawal');
+INSERT INTO public.transaction VALUES (10, 2, '2020-02-18 22:18:07.227', -24800.00, 'Withdrawal');
+INSERT INTO public.transaction VALUES (11, 2, '2020-02-18 22:18:22.322', 55000.00, 'Deposit');
+
+
+--
+-- Name: account_id_seq; Type: SEQUENCE SET; Schema: public; Owner: bankuser
+--
+
+SELECT pg_catalog.setval('public.account_id_seq', 1, false);
+
+
+--
+-- Name: ownership_id_seq; Type: SEQUENCE SET; Schema: public; Owner: bankuser
+--
+
+SELECT pg_catalog.setval('public.ownership_id_seq', 3, true);
+
+
+--
+-- Name: person_id_seq; Type: SEQUENCE SET; Schema: public; Owner: bankuser
+--
+
+SELECT pg_catalog.setval('public.person_id_seq', 1, false);
+
+
+--
+-- Name: transaction_id_seq; Type: SEQUENCE SET; Schema: public; Owner: bankuser
+--
+
+SELECT pg_catalog.setval('public.transaction_id_seq', 1, false);
+
+
+--
+-- Name: account account_pkey; Type: CONSTRAINT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.account
+    ADD CONSTRAINT account_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ownership ownership_pkey; Type: CONSTRAINT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.ownership
+    ADD CONSTRAINT ownership_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: person person_pkey; Type: CONSTRAINT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.person
+    ADD CONSTRAINT person_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: person person_username_key; Type: CONSTRAINT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.person
+    ADD CONSTRAINT person_username_key UNIQUE (username);
+
+
+--
+-- Name: transaction transaction_pkey; Type: CONSTRAINT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.transaction
+    ADD CONSTRAINT transaction_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ownership ownership_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.ownership
+    ADD CONSTRAINT ownership_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.account(id);
+
+
+--
+-- Name: ownership ownership_person_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.ownership
+    ADD CONSTRAINT ownership_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person(id);
+
+
+--
+-- Name: transaction transaction_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: bankuser
+--
+
+ALTER TABLE ONLY public.transaction
+    ADD CONSTRAINT transaction_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.account(id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
