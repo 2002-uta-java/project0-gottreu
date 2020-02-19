@@ -99,7 +99,8 @@ public class AccountDAOImpl implements AccountDAO {
 			ps.setBigDecimal(3, amt);
 			ps.setString(4, desc);
 
-			return ps.execute();
+			ps.execute();
+			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
