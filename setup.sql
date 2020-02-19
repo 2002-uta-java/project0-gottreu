@@ -16,9 +16,7 @@ create table person (
 insert into person (id, legal_name, username, password)
 	values (1, 'Brian Gottreu', 'gottreu', crypt('security', gen_salt('bf'))),
 	(2, 'Susan Jones', 'jones', crypt('fancypass', gen_salt('bf')));
-
 SELECT pg_catalog.setval('public.person_id_seq', 3, false);
-
 --select crypt('security', (select password from person where username='gottreu')) = password from person where username = 'gottreu';
 create table account (
 	id serial primary key,
@@ -29,9 +27,7 @@ insert into account (id, description) values
 	(1, 'Checking account'),
 	(2, 'Checking account'),
 	(3, 'Savings account');
-SELECT pg_catalog.setval('public.account_id_seq', 4, false);
 
-insert into account (description ) values ('some account')returning id;
 create table ownership (
 	id serial primary key,
 	person_id int references person(id),
@@ -42,8 +38,6 @@ insert into ownership (person_id, account_id) values
 	(1,1), -- gottreu checking
 	(2,2), -- jones checking
 	(2,3); -- jones savings
-	
-
 
 select a.id, description from account a join ownership o on a.id = o.account_id 
 	join person p on o.person_id = p.id
@@ -89,4 +83,3 @@ begin
 end
 $$;
 
---select add_person('bob', 'bob', 'bobby');

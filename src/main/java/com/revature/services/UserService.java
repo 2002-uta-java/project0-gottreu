@@ -14,6 +14,10 @@ public class UserService {
 	public User findUserByUsername(String username) {
 		return userDAO.findUserByUsername(username);
 	}
+
+	public boolean addPerson(String legalName, String username, String password) {
+		return userDAO.addPerson(legalName, username, password);
+	}
 	
 	
 

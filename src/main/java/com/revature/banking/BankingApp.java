@@ -28,10 +28,31 @@ public class BankingApp {
 					s = sc.nextLine();
 					// System.out.println(">>" + s + "<<");
 					switch (s) {
-					case "create":
-						System.out.println("not implemented");
+					case "create": {
+						// System.out.println("not implemented");
+						System.out.println("Enter legal name");
+						String legalName = sc.nextLine();
+						String username;
+						do {
+							System.out.println("Enter username");
+							username = sc.nextLine();
+						} while (!username.matches("[a-zA-Z]\\w+"));
+						String p1 = "A";
+						String p2 = "b";
+						do {
+							System.out.println("Enter password");
+							p1 = sc.nextLine();
+							System.out.println("Enter password again");
+							p2 = sc.nextLine();
+						} while (!p1.equals(p2));
+						if (us.addPerson(legalName, username, p1)) {
+							System.out.println("Username " + username + " added.");
+						} else {
+							System.out.println("Username already exists.");
+						}
 						break;
-					case "login":
+					}
+					case "login": {
 						System.out.println("username > ");
 						String username = sc.nextLine();
 						System.out.println("password > ");
@@ -40,31 +61,34 @@ public class BankingApp {
 						if (currentUser == null) {
 							System.out.println("Login failed.");
 						} else {
-							System.out.println(
-									"Welcome " + currentUser.getLegalName());
+							System.out.println("Welcome " + currentUser.getLegalName());
 							// AccountService as = new AccountService();
-							List<Account> accounts = as
-									.getAccountsForUser(currentUser);
+							List<Account> accounts = as.getAccountsForUser(currentUser);
 							if (accounts != null && accounts.size() > 0) {
 								currentAccount = accounts.get(0);
-								System.out.println(
-										"Using account " + currentAccount);
+								System.out.println("Using account " + currentAccount);
 							} else {
-								System.err.println("no account exists");
-								System.err.println(
-										"account creation unimplemented");
+								System.out.println("no account exists");
+								System.out.println("Enter description for new account");
+								//System.err.println("account creation unimplemented");
+								String desc = sc.nextLine();
+								as.createAccount(currentUser, desc);
+								currentAccount = as.getAccountsForUser(currentUser).get(0);
 							}
 						}
 						break;
 					}
+					}
 				} else {
-					System.out
-							.println("[balance | deposit | withdraw | logout]");
+					System.out.println("[balance | deposit | withdraw | logout]");
 					s = sc.nextLine();
 					switch (s) {
 					case "balance":
 						BigDecimal bal;
 						bal = as.getBalance(currentAccount);
+						if(bal == null) {
+							bal = BigDecimal.ZERO;
+						}
 						System.out.println("Current balance is " + bal);
 						break;
 					case "deposit": {
@@ -77,8 +101,7 @@ public class BankingApp {
 							if (sc.hasNextBigDecimal()) {
 								depAmt = sc.nextBigDecimal();
 								sc.nextLine();
-								if (depAmt.compareTo(BigDecimal.ZERO) > 0
-										&& depAmt.scale() <= 2) {
+								if (depAmt.compareTo(BigDecimal.ZERO) > 0 && depAmt.scale() <= 2) {
 									needsInput = false;
 								}
 							} else {
@@ -89,8 +112,7 @@ public class BankingApp {
 						} while (needsInput);
 						as.addDeposit(currentAccount, depAmt);
 						System.out.println("Depositing " + depAmt);
-						System.out.println("New balance is "
-								+ as.getBalance(currentAccount));
+						System.out.println("New balance is " + as.getBalance(currentAccount));
 						break;
 					}
 					case "withdraw": {
@@ -101,8 +123,7 @@ public class BankingApp {
 							if (sc.hasNextBigDecimal()) {
 								amt = sc.nextBigDecimal();
 								sc.nextLine();
-								if (amt.compareTo(BigDecimal.ZERO) > 0
-										&& amt.scale() <= 2) {
+								if (amt.compareTo(BigDecimal.ZERO) > 0 && amt.scale() <= 2) {
 									needsInput = false;
 								}
 							} else {
@@ -110,41 +131,77 @@ public class BankingApp {
 							}
 
 						} while (needsInput);
-						as.makeWithdrawal(currentAccount, amt);
-						System.out.println("Withdrawing " + amt);
-						System.out.println("New balance is "
-								+ as.getBalance(currentAccount));
+						if (as.makeWithdrawal(currentAccount, amt)) {
+							System.out.println("Withdrawing " + amt);
+							System.out.println("New balance is " + as.getBalance(currentAccount));
+						} else {
+							System.out.println("Withdrawal failed: insufficient funds");
+						}
 						break;
 					}
 					case "logout":
-						System.out.println(
-								"logging out " + currentUser.getLegalName());
+						System.out.println("logging out " + currentUser.getLegalName());
 						currentUser = null;
 						currentAccount = null;
 					}
 				}
 			} catch (NoSuchElementException e) {
-				System.err.println("exiting program\n" + e);
-				exit = true;
+				if (!e.getMessage().matches(".*No line found.*")) {
+					// System.err.println("exiting program\n" + e);
+					e.printStackTrace();
+				} else {
+					exit = true;
+					System.out.println("Goodbye.  Have a pleasant day.");
+				}
 			}
 		}
 		sc.close();
 	}
 	/*
-	 * 1) create a user account with a unique email and/or username (must have
+	 * X 1) create a user account with a unique email and/or username (must have
 	 * multiple users)
 	 * 
-	 * 2) secure my account using a password
+	 * X 2) secure my account using a password
 	 * 
-	 * X3) log in/log out
+	 * X 3) log in/log out
 	 * 
-	 * 4) create a bank account associated with each user
+	 * X 4) create a bank account associated with each user
 	 * 
-	 * 5) deposit money
+	 * X5) deposit money
 	 * 
-	 * 6) withdraw money (no negative balances!)
+	 * x6) withdraw money (no negative balances!)
 	 * 
 	 * X7) view account balance
+	 * 
+	 * use at least one X Statement, X PreparedStatement, and X CallableStatement
+	 * 
+	 * X Use the DAO design pattern
+	 * 
+	 * X Use proper coding conventions
+	 * 
+	 * X Ensure that input is thoroughly validated
+	 * 
+	 * ~ Include JUnit tests to test application code
+	 * 
+	 * 
+	 * 
+	 * Your bank can optionally support:
+	 * 
+	 * Use log4j to replace System.out.println with logging
+	 * 
+	 * Multiple user bank accounts (checking & savings)
+	 * 
+	 * Transfer funds functionality between user accounts
+	 * 
+	 * Joint accounts (a single account with two separate users having access)
+	 * 
+	 * Ability to view transaction history
+	 * 
+	 * X Password encryption for added security
+	 * 
+	 * Include mocking and/or an H2 database for proper unit testing
+	 * 
+	 * 
 	 */
 
 	private static User login(String username, String password) {

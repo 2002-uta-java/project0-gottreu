@@ -15,4 +15,6 @@ public interface AccountDAO {
 
 	boolean addTransaction(Account a, BigDecimal amt, Timestamp ts, String desc);
 
+	void createAccount(int id, String desc);
+
 }

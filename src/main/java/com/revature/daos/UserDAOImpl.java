@@ -1,5 +1,6 @@
 package com.revature.daos;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,7 +46,7 @@ public class UserDAOImpl implements UserDAO {
 	@Override
 	public User findUserByUsername(String username) {
 		User u = null;
-		String query = "select username, legal_name " + 
+		String query = "select id, username, legal_name " + 
 				"from person where username = ?;";
 		ResultSet rs = null;
 		try (Connection c = ConnectionUtil.getConnection(); 
@@ -56,6 +57,7 @@ public class UserDAOImpl implements UserDAO {
 
 			if (rs.next()) {
 				u = new User();
+				u.setId(rs.getInt("id"));
 				u.setLegalName(rs.getString("legal_name"));
 				u.setUsername(rs.getString("username"));
 			}
@@ -64,6 +66,40 @@ public class UserDAOImpl implements UserDAO {
 		}
 
 		return u;
+	}
+
+	@Override
+	public boolean addPerson(String legalName, String username, String password) {
+		//{call add_dept(?, ?)}
+		String call = "{call add_person(?, ?, ?)}";
+
+		ResultSet rs = null;
+
+		try(Connection c = ConnectionUtil.getConnection();
+				CallableStatement cs = c.prepareCall(call)){
+			cs.setString(1, legalName);
+			cs.setString(2, username);
+			cs.setString(3, password);
+
+			cs.execute();
+
+			rs = cs.getResultSet();
+
+			while(rs.next()) {
+				//System.out.println("there is a resultset");
+				return true;
+				//int newId = rs.getInt("dept_id");
+				//d.setId(newId);
+			}
+
+		} catch (SQLException e) {
+			if(e.getMessage().matches("(.|\\n)*person_username_key(.|\\n)*")) {
+				return false;
+			}
+			e.printStackTrace();
+			//System.out.println("message " + e.getMessage());
+		}
+		return false;
 	}
 
 }

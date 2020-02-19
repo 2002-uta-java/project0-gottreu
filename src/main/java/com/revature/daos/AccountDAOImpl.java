@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Vector;
@@ -20,8 +21,9 @@ public class AccountDAOImpl implements AccountDAO {
 	public List<Account> getAccountsForUser(User user) {
 		// User u = null;
 		List<Account> accounts = new Vector<>();
-		String query = "select a.id, description from account a " + "join ownership o on a.id = o.account_id "
-				+ "	join person p on o.person_id = p.id " + "	where p.username = ?;";
+		String query = "select a.id, description from account a "
+				+ "join ownership o on a.id = o.account_id "
+				+ "	join person p on o.person_id = p.id where p.username = ?;";
 
 		ResultSet rs = null;
 		Connection c = null;
@@ -50,7 +52,10 @@ public class AccountDAOImpl implements AccountDAO {
 
 	@Override
 	public BigDecimal getBalance(Account a) {
-		String query = "select sum(amount) from \"transaction\" t " + "	where account_id = ?;";
+		// We need to use a Statement, but all our queries require parameters.
+		// So we'll use a Statement here, when we shouldn't.
+		String query = "select sum(amount) from \"transaction\" where account_id = "
+				+ a.getId() + " ;";
 		ResultSet rs = null;
 		Connection c = null;
 		try {
@@ -58,10 +63,10 @@ public class AccountDAOImpl implements AccountDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		try (PreparedStatement ps = c.prepareStatement(query)) {
-			ps.setInt(1, a.getId());
+		try (Statement s = c.createStatement()) {
+			//ps.setInt(1, a.getId());
 
-			rs = ps.executeQuery();
+			rs = s.executeQuery(query);
 
 			if (rs.next()) {
 				return rs.getBigDecimal(1);
@@ -79,8 +84,9 @@ public class AccountDAOImpl implements AccountDAO {
 		// ResultSet rs = null;
 		if (amt.compareTo(BigDecimal.ZERO) < 0) {
 			BigDecimal bal = getBalance(a);
+			if(bal == null) { return false; }
 			if (bal.add(amt).compareTo(BigDecimal.ZERO) < 0) {
-				System.err.println("insufficient funds");
+				// System.err.println("insufficient funds");
 				return false;
 			}
 		}
@@ -101,5 +107,45 @@ public class AccountDAOImpl implements AccountDAO {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	@Override
+	public void createAccount(int userId, String desc) {
+		String query = "insert into account (description) values (?) returning id;";
+		ResultSet rs = null;
+		
+		Connection c = null;
+		int accountId = 0;
+		try {
+			c = ConnectionUtil.getConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try (PreparedStatement ps = c.prepareStatement(query)) {
+			ps.setString(1, desc);
+			
+			rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				accountId = rs.getInt("id");
+				System.out.println("account id = " + accountId);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		query = "insert into ownership (person_id, account_id) values (?,?);";
+		try (PreparedStatement ps = c.prepareStatement(query)) {
+			ps.setInt(1, userId);
+			ps.setInt(2, accountId);
+			
+			ps.execute();
+			
+			//if(rs.next()) {
+				//accountId = rs.getInt("id");
+				//System.out.println("account id = " + accountId);
+			//}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

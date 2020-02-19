@@ -21,13 +21,17 @@ public class AccountService {
 		return accountDAO.getBalance(a);
 	}
 
-	public void addDeposit(Account a, BigDecimal depAmt) {
-		accountDAO.addTransaction(a, depAmt,
-				Timestamp.valueOf(LocalDateTime.now()), "Deposit");
+	public boolean addDeposit(Account a, BigDecimal depAmt) {
+		return accountDAO.addTransaction(a, depAmt, Timestamp.valueOf(LocalDateTime.now()),
+				"Deposit");
 	}
 
-	public void makeWithdrawal(Account a, BigDecimal amt) {
-		accountDAO.addTransaction(a, amt.negate(),
-				Timestamp.valueOf(LocalDateTime.now()), "Withdrawal");
+	public boolean makeWithdrawal(Account a, BigDecimal amt) {
+		return accountDAO.addTransaction(a, amt.negate(), Timestamp.valueOf(LocalDateTime.now()),
+				"Withdrawal");
+	}
+
+	public void createAccount(User user, String desc) {
+		accountDAO.createAccount(user.getId(), desc);
 	}
 }

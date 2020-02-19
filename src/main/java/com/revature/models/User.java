@@ -4,6 +4,7 @@ public class User {
 	private String legalName;
 	private String username;
 	private String password;
+	private int id;
 	
 	public String getLegalName() {
 		return legalName;
@@ -22,5 +23,11 @@ public class User {
 	}
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
 	}
 }
